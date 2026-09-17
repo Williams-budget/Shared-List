@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+< lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -121,7 +121,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-purple-200">
+< class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-purple-200">
 
     <div id="app" class="max-w-md md:max-w-4xl mx-auto w-full min-h-screen bg-white shadow-2xl flex flex-col relative overflow-hidden">
 
@@ -351,7 +351,7 @@
         </nav>
     </div>
 
-    <script type="module">
+      <script type="module">
         // Firebase Cloud Persistence setup with safe initializations
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -360,13 +360,12 @@
         // APP STATE MANAGEMENT
         const state = {
             notes: [],
-            currentUserId: 'user-1',
+            currentUserId: 'usr_aw',
             users: [
-                { id: 'user-1', name: 'Taylor Swift', initials: 'TS', color: 'bg-purple-600' },
-                { id: 'user-2', name: 'John Miller', initials: 'JM', color: 'bg-emerald-600' },
-                { id: 'user-3', name: 'Emma Watson', initials: 'EW', color: 'bg-amber-600' }
+                { id: 'usr_aw', name: 'Aaron', initials: 'AW', color: 'bg-purple-600', pin: '1234' },
+                { id: 'usr_lw', name: 'Lauren', initials: 'LW', color: 'bg-pink-400', pin: '5678' }
             ],
-            currentFilter: 'all', // 'all', 'shared', 'checklists'
+            currentFilter: 'all', 
             searchQuery: '',
             activeNoteId: null,
             isGridView: true,
@@ -384,7 +383,7 @@
                 title: '🛒 Weekly Grocery List',
                 type: 'checklist',
                 color: 'pastel-pink',
-                collaborators: ['user-1', 'user-2'],
+                collaborators: ['usr_aw', 'usr_lw'],
                 updatedAt: Date.now(),
                 items: [
                     { id: 'item-1', text: 'Oat milk & Creamer', completed: true },
@@ -395,40 +394,26 @@
             },
             {
                 id: 'note-2',
-                title: '✈️ Summer Vacation Ideas',
-                type: 'note',
-                color: 'pastel-blue',
-                collaborators: ['user-1', 'user-2', 'user-3'],
-                updatedAt: Date.now() - 3600000,
-                content: 'Explore spots in southern Europe: Santander coast, Amalfi cliffs, or Greek islands. Need to compare flight deals!'
-            },
-            {
-                id: 'note-3',
-                title: '⚡ Weekend DIY Tasks',
+                title: '⚡ Weekend Tasks',
                 type: 'checklist',
                 color: 'pastel-yellow',
-                collaborators: ['user-1'],
+                collaborators: ['usr_aw'],
                 updatedAt: Date.now() - 86400000,
                 items: [
-                    { id: 'i-1', text: 'Fix kitchen tap leak', completed: false },
-                    { id: 'i-2', text: 'Organize study desk bookshelf', completed: true },
-                    { id: 'i-3', text: 'Water patio plants', completed: true }
+                    { id: 'i-1', text: 'Check new boiler pressure', completed: false },
+                    { id: 'i-2', text: 'Organize study desk bookshelf', completed: true }
                 ]
-            },
-            {
-                id: 'note-4',
-                title: '💡 App Project Ideas',
-                type: 'note',
-                color: 'pastel-purple',
-                collaborators: ['user-1', 'user-3'],
-                updatedAt: Date.now() - 172800000,
-                content: 'Create a PWA with subtle pastel design notes, real-time shared checklist updates, and custom collaborator avatars.'
             }
         ];
 
         // INITIALIZATION
         window.addEventListener('DOMContentLoaded', async () => {
             lucide.createIcons();
+            
+            // Navigation Cleanup: Permanently remove the bottom nav bar
+            const bottomNav = document.querySelector('nav.sticky.bottom-0');
+            if (bottomNav) bottomNav.remove();
+
             loadLocalStorageData();
             initFirebase();
             setupEventListeners();
@@ -468,7 +453,6 @@
                         await signInAnonymously(state.auth);
                     }
 
-                    // Setup realtime listener using standard Firestore path
                     const notesRef = collection(state.db, 'artifacts', appId, 'public', 'data', 'notes');
                     onSnapshot(notesRef, (snapshot) => {
                         if (!snapshot.empty) {
@@ -559,7 +543,6 @@
                 card.className = `pastel-card rounded-2xl p-4 border shadow-sm cursor-pointer hover:shadow-md flex flex-col justify-between space-y-3 bg-${note.color} border-${note.color}`;
                 card.onclick = () => openNoteEditor(note.id);
 
-                // Build preview content
                 let previewHTML = '';
                 if (note.type === 'checklist' && note.items) {
                     const topItems = note.items.slice(0, 3);
@@ -575,7 +558,6 @@
                     previewHTML = `<p class="text-xs text-slate-600 line-clamp-3 mt-1.5 leading-relaxed">${escapeHtml(note.content || 'No text content')}</p>`;
                 }
 
-                // Build Collaborator Avatars
                 const avatarHTML = (note.collaborators || []).map(userId => {
                     const u = state.users.find(x => x.id === userId) || { initials: '?', color: 'bg-slate-400' };
                     return `<span class="w-6 h-6 rounded-full ${u.color} text-white font-bold text-[9px] flex items-center justify-center border-2 border-white shadow-sm -ml-1.5 first:ml-0" title="${u.name}">${u.initials}</span>`;
@@ -615,7 +597,6 @@
             const editorHeader = document.getElementById('editor-header');
             const editorBody = document.getElementById('editor-body');
 
-            // Apply background colors to editor
             editorHeader.className = `px-4 py-3 border-b border-black/10 flex items-center justify-between transition-colors bg-${note.color}`;
             editorBody.className = `flex-1 overflow-y-auto px-5 py-5 space-y-4 transition-colors bg-${note.color}`;
 
@@ -661,7 +642,6 @@
                     itemsList.appendChild(row);
                 });
 
-                // Attach item listeners
                 itemsList.querySelectorAll('.custom-checkbox').forEach(chk => {
                     chk.onchange = (e) => {
                         const idx = parseInt(e.target.dataset.index);
@@ -681,6 +661,7 @@
                     };
                 });
 
+                // Task Deletion Binding
                 itemsList.querySelectorAll('.delete-item-btn').forEach(btn => {
                     btn.onclick = (e) => {
                         const idx = parseInt(btn.dataset.index);
@@ -710,7 +691,6 @@
         }
 
         function setupEventListeners() {
-            // Title Change
             document.getElementById('editor-title').oninput = (e) => {
                 const note = state.notes.find(n => n.id === state.activeNoteId);
                 if (note) {
@@ -720,14 +700,12 @@
                 }
             };
 
-            // Back Button
             document.getElementById('editor-back-btn').onclick = () => {
                 document.getElementById('view-editor').classList.add('hidden');
                 state.activeNoteId = null;
                 renderGrid();
             };
 
-            // Add Checklist Item
             document.getElementById('add-item-btn').onclick = () => {
                 const note = state.notes.find(n => n.id === state.activeNoteId);
                 if (note && note.type === 'checklist') {
@@ -737,7 +715,6 @@
                     syncNoteToCloud(note);
                     renderEditorContent();
 
-                    // Focus new input
                     setTimeout(() => {
                         const inputs = document.querySelectorAll('#checklist-items input[type="text"]');
                         if (inputs.length) inputs[inputs.length - 1].focus();
@@ -745,11 +722,9 @@
                 }
             };
 
-            // FAB Create New Note / Checklist
             document.getElementById('fab-add-btn').onclick = createNewNote;
             document.getElementById('empty-create-btn').onclick = createNewNote;
 
-            // Toggle Type (Note <-> Checklist)
             document.getElementById('toggle-type-btn').onclick = () => {
                 const note = state.notes.find(n => n.id === state.activeNoteId);
                 if (note) {
@@ -771,7 +746,6 @@
                 }
             };
 
-            // Color Picker Dropdown Toggle
             const colorBtn = document.getElementById('color-picker-btn');
             const colorDropdown = document.getElementById('color-dropdown');
             colorBtn.onclick = (e) => {
@@ -794,7 +768,6 @@
                 };
             });
 
-            // Delete Note
             document.getElementById('delete-note-btn').onclick = () => {
                 if (state.activeNoteId) {
                     deleteNoteFromCloud(state.activeNoteId);
@@ -803,7 +776,6 @@
                 }
             };
 
-            // Search Toggle & Handler
             const searchBtn = document.getElementById('search-toggle-btn');
             const searchBar = document.getElementById('search-bar-container');
             const searchInput = document.getElementById('search-input');
@@ -825,14 +797,10 @@
                 renderGrid();
             };
 
-            // Filters
             document.getElementById('filter-all').onclick = (e) => setFilter('all', e.target);
             document.getElementById('filter-shared').onclick = (e) => setFilter('shared', e.target);
             document.getElementById('filter-checklists').onclick = (e) => setFilter('checklists', e.target);
-            document.getElementById('nav-all').onclick = () => setFilter('all', document.getElementById('filter-all'));
-            document.getElementById('nav-shared').onclick = () => setFilter('shared', document.getElementById('filter-shared'));
 
-            // User switcher modal
             document.getElementById('user-profile-btn').onclick = () => {
                 renderUserModal();
                 document.getElementById('user-modal').classList.remove('hidden');
@@ -841,7 +809,6 @@
                 document.getElementById('user-modal').classList.add('hidden');
             };
 
-            // Share Modal
             document.getElementById('share-note-btn').onclick = () => {
                 renderShareModal();
                 document.getElementById('share-modal').classList.remove('hidden');
@@ -899,24 +866,33 @@
         function renderUserModal() {
             const container = document.getElementById('user-options');
             container.innerHTML = state.users.map(u => `
-                <button class="w-full p-3 rounded-2xl flex items-center justify-between border ${u.id === state.currentUserId ? 'border-purple-600 bg-purple-50/50' : 'border-slate-100 hover:bg-slate-50'}" data-uid="${u.id}">
+                <button class="w-full p-3 rounded-2xl flex items-center justify-between border ${u.id === state.currentUserId ? 'border-purple-600 bg-purple-50/50' : 'border-slate-100 hover:bg-slate-50'}" data-uid="${u.id}" data-pin="${u.pin}">
                     <div class="flex items-center gap-3">
                         <span class="w-8 h-8 rounded-full ${u.color} text-white font-bold text-xs flex items-center justify-center">${u.initials}</span>
                         <div class="text-left">
                             <p class="font-semibold text-slate-800 text-sm">${u.name}</p>
-                            <p class="text-[10px] text-slate-400">ID: ${u.id}</p>
                         </div>
                     </div>
-                    ${u.id === state.currentUserId ? '<i data-lucide="check" class="w-5 h-5 text-purple-600"></i>' : ''}
+                    ${u.id === state.currentUserId ? '<i data-lucide="check" class="w-5 h-5 text-purple-600"></i>' : '<i data-lucide="lock" class="w-4 h-4 text-slate-400"></i>'}
                 </button>
             `).join('');
 
             container.querySelectorAll('button').forEach(btn => {
                 btn.onclick = () => {
-                    state.currentUserId = btn.dataset.uid;
-                    updateUserUI();
-                    document.getElementById('user-modal').classList.add('hidden');
-                    renderGrid();
+                    const targetId = btn.dataset.uid;
+                    if (targetId === state.currentUserId) return;
+
+                    const correctPin = btn.dataset.pin;
+                    const enteredPin = prompt(`Enter PIN for ${state.users.find(u => u.id === targetId).name}:`);
+
+                    if (enteredPin === correctPin) {
+                        state.currentUserId = targetId;
+                        updateUserUI();
+                        document.getElementById('user-modal').classList.add('hidden');
+                        renderGrid();
+                    } else if (enteredPin !== null) {
+                        alert("Incorrect PIN.");
+                    }
                 };
             });
             lucide.createIcons();
